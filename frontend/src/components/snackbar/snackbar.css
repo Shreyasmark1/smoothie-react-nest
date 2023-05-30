@@ -1,0 +1,30 @@
+.snackbar {
+    position: absolute;
+    border: 2px solid red;
+    border-radius: 0.4rem;
+    padding: 8px;
+    bottom: 0;
+    width: 25%;
+    backdrop-filter: blur(0.2rem);
+    min-height: 12px;
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: 2%;
+    margin-bottom: 2%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.title {
+    font-size: large;
+}
+
+.message {
+    font-size: medium;
+}
+
+.close-icon{
+    right: 0;
+    top: 0;
+}
