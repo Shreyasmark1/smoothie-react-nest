@@ -1,46 +1,56 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModule } from './users/users.module';
-import { User, UserSchema } from './schema/user.schema';
-const bcrypt = require('bcrypt')
+import { AuthModule } from './auth/auth.module';
+import { RepositoryModule } from './repository/repository.module';
+import configuration from './core/config/configuration';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtAuthGuard } from './core/security/jwt.guard';
+import { APP_GUARD } from '@nestjs/core';
+import { CoreModule } from './core/core.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: ['.env.local', '.env.example'],
-      isGlobal: true,
+      load: [configuration],
+      envFilePath: ['.env.local'],
+      isGlobal: true
     }),
-    MongooseModule.forRoot(
-      process.env.DATABASE_URI,
+    JwtModule.register(
       {
-        dbName:process.env.DATABASE
+        global: true,
       }
     ),
-    MongooseModule.forFeatureAsync([{
-      name: User.name,
-      useFactory: () => {
-        const schema = UserSchema;
-        schema.pre<User>('save',async function(next) {
-
-          const user = this
-
-          const salt = await bcrypt.genSalt(10);
-          const hashPassword = await bcrypt.hash(user.password,salt)
-
-          user.password = hashPassword
-          next()
-
-        });
-
-        return schema
-      }
-    }]),
-    UsersModule
+    // MongooseModule.forRoot(
+    //   process.env.DATABASE_URI,
+    //   {
+    //     dbName: process.env.DATA_BASE
+    //   }
+    // )
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        uri: configService.get<string>('mongodbUri'),
+      }),
+      inject: [ConfigService],
+    },
+    )
+    ,
+    UsersModule,
+    AuthModule,
+    CoreModule,
+    RepositoryModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard
+    },
+    AppService,
+  ],
 })
 export class AppModule { }

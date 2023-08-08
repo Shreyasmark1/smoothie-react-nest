@@ -1,6 +1,6 @@
 import { Prop, SchemaFactory, Schema } from "@nestjs/mongoose"
-import { IsEmail, MinLength } from "class-validator";
 import { HydratedDocument } from "mongoose";
+const bcrypt = require('bcrypt')
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -13,23 +13,33 @@ export class User {
         required: true
     })
 
-    @MinLength(3)
     name: String
 
     @Prop({
         unique: true,
         lowercase: true,
     })
-    @IsEmail()
     email: String
 
     @Prop({
         required: true,
         minlength: [6, 'Minimum password length is 6 characters'],
     })
-    @MinLength(6)
     password: String
+
+    @Prop({
+        default: 1
+    })
+    userType: Number
 }
 
 export const UserSchema = SchemaFactory.createForClass(User)
+
+UserSchema.pre("save", async function (next) {
+    const user = this
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(user.password, salt)
+    user.password = hashPassword
+    next()
+});
 

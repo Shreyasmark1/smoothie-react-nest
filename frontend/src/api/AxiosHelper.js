@@ -1,6 +1,6 @@
 import axios from "axios"
 import { BASE_URL } from "../utils/Constants"
-
+import './AxiosInterceptor'
 
 export const httpPost = ({ path, body = null }) => {
 

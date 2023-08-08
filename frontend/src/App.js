@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './App.css';
 import Home from './pages/Home';
 import Layout from './components/layout/Layout';
-import Form from './components/form/Form';
+import Auth from './components/form/Auth';
 
 function App() {
   return (
@@ -16,11 +16,11 @@ function App() {
           />
           <Route
             path='/login'
-            element={<Form registration={false} />}
+            element={<Auth registration={false} />}
           />
           <Route
             path='/signup'
-            element={<Form registration={true} />}
+            element={<Auth registration={true} />}
           />
           <Route
             path="/logout"

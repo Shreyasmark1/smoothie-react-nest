@@ -1,23 +1,24 @@
 import './snackbar.css'
-const Snackbar = () => {
-    return ( 
-        <div className="snackbar">
-            <div className="icon">
-                x
-            </div>
-            <div className="content">
-                <div className="title">
-                    Failed
+const Snackbar = ({ mesaage }) => {
+
+    return (
+            <div className="snackbar" id='snackbar'>
+                <div className="icon">
+                    x
                 </div>
-                <div className="message">
-                    There was an error
+                <div className="content">
+                    <div className="title">
+                        Failed
+                    </div>
+                    <div className="message">
+                        {mesaage}
+                    </div>
+                </div>
+                <div className="close-icon">
+                    x
                 </div>
             </div>
-            <div className="close-icon">
-                x
-            </div>
-        </div>
-     );
+    );
 }
- 
+
 export default Snackbar;

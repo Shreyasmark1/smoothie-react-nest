@@ -1,19 +1,31 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { MyLogger } from './configuration/Logger';
-import { PORT } from './utils/constants';
+import { RequestTrackingInterceptor } from './core/config/interceptors/request.interceptor';
+import { HttpExceptionFilter } from './core/config/filters/exception.filter';
+import { FileLoggerService } from './core/config/logging/file-logger.service';
 
 async function bootstrap() {
 
-  const app = await NestFactory.create(AppModule,{
-    logger: new MyLogger()
-  });
+  const app = await NestFactory.create(AppModule);
 
   app.enableCors();
 
-  app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalFilters(new HttpExceptionFilter());
 
-  await app.listen(PORT);
+  const fileLoggerService = new FileLoggerService()
+
+  app.useGlobalInterceptors(
+    new RequestTrackingInterceptor(
+      fileLoggerService,
+    )
+  )
+
+  app.useGlobalPipes(new ValidationPipe({
+    // forbidNonWhitelisted: true,
+    // whitelist: true
+  }))
+
+  await app.listen(process.env.PORT);
 }
 bootstrap();
